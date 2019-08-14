@@ -8,13 +8,14 @@ cat << 'EOF' > /etc/consul.d/server_node_1_config.json
  "log_level": "INFO",
  "enable_syslog": true,
  "enable_debug": true,
- "node_name": "${datacenter}-consul-server",
+ "node_name": "${datacenter}-consul-server-${instance_number}",
  "server": true,
  "client_addr": "0.0.0.0",
  "bootstrap_expect": 1,
  "rejoin_after_leave": true,
  "ui": true,
- "retry_join_wan": ["provider=aws tag_key=Name tag_value=consul_server access_key_id=${auto_join_key_id} secret_access_key=${auto_join_secret_key}"]
+ "retry_join_wan": ["provider=aws tag_key=Name tag_value=consul-server access_key_id=${auto_join_key_id} secret_access_key=${auto_join_secret_key}"],
+ "retry_join": ["provider=aws tag_key=lan_name tag_value=consul-server-${datacenter} access_key_id=${auto_join_key_id} secret_access_key=${auto_join_secret_key}"]
 }
 EOF
 

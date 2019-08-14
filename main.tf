@@ -71,6 +71,8 @@ module "consul_server_east" {
   # Auto-join
   auto_join_key_id     = aws_iam_access_key.auto_join_user_access_key.id
   auto_join_secret_key = aws_iam_access_key.auto_join_user_access_key.secret
+  # Number of consul servers in this DC
+  instance_count = 3
 }
 
 # Generates public and private key to be used for the keypair
@@ -99,7 +101,8 @@ module "consul_server_west" {
   # Auto-join
   auto_join_key_id     = aws_iam_access_key.auto_join_user_access_key.id
   auto_join_secret_key = aws_iam_access_key.auto_join_user_access_key.secret
-
+  # Number of consul servers in this DC
+  instance_count = 3
 }
 
 # Getting auto-join working below 

@@ -31,5 +31,10 @@ variable "auto_join_secret_key" {
   description = "The secret key used to auto-join in Consul"
 }
 
+variable "instance_count" {
+  description = "Sets a number of instances to be created"
+}
+
+
 
 
