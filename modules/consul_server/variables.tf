@@ -31,5 +31,10 @@ variable "auto_join_secret_key" {
   description = "The secret key used to auto-join in Consul"
 }
 
+variable "instance_count" {
+  description = "Gets a number from count.index"
+}
+
+
 
 
