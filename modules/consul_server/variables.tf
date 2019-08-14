@@ -32,7 +32,7 @@ variable "auto_join_secret_key" {
 }
 
 variable "instance_count" {
-  description = "Gets a number from count.index"
+  description = "Sets a number of instances to be created"
 }
 
 
