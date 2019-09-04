@@ -27,7 +27,9 @@ resource "aws_instance" "consul_server" {
   })
 
   tags = {
-    Name     = "consul-server"
+    # This tag is used for WAN join
+    Name = "consul-server"
+    # This tag is used for LAN join
     lan_name = "consul-server-${var.datacenter}"
   }
 }

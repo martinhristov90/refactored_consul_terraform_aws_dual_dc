@@ -1,38 +1,10 @@
 module "vpc" {
-  # This module creates VPC, subnets private and public inside it, NAT gataways and route tables.
-  source = "terraform-aws-modules/vpc/aws"
+  source = "./modules/vpc"
 
-  name = "consul-vpc"
-  cidr = "192.168.0.0/24"
-  # Private subnets
-  azs                   = ["us-east-1a"]
-  private_subnets       = ["192.168.0.0/26"]
-  private_subnet_suffix = "private_"
-  # Public subnets
-  public_subnets       = ["192.168.0.64/26"]
-  public_subnet_suffix = "public_"
-
-  enable_nat_gateway   = true
-  enable_dns_hostnames = true
-  enable_dns_support   = true
-
-  tags = {
-    Name = "consul-VPC"
-  }
+  cidr_block = "192.168.0.0/24"
 }
 
-
-resource "aws_security_group_rule" "ssh_allow" {
-  type      = "ingress"
-  from_port = 22
-  to_port   = 22
-  protocol  = "tcp"
-
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = module.vpc.default_security_group_id
-  description       = "allowing inbound ssh connectivity"
-}
-
+# Getting AMI with Consul installed as Systemd service.
 data "aws_ami" "ami_details" {
   #executable_users = ["self"]
   most_recent = true
@@ -59,7 +31,7 @@ module "consul_server_east" {
   # Run this particular Ubuntu AMI
   ami = data.aws_ami.ami_details.image_id
   # Subnet ID this instance to be associated with.
-  subnet_id = module.vpc.public_subnets[0]
+  subnet_id = module.vpc.subnet_id
   # What SGs to apply to this instance
   vpc_security_group_ids = [module.vpc.default_security_group_id]
   # ID of the key pair to be used to access this instance
@@ -72,7 +44,7 @@ module "consul_server_east" {
   auto_join_key_id     = aws_iam_access_key.auto_join_user_access_key.id
   auto_join_secret_key = aws_iam_access_key.auto_join_user_access_key.secret
   # Number of consul servers in this DC
-  instance_count = 3
+  instance_count = 1
 }
 
 # Generates public and private key to be used for the keypair
@@ -89,7 +61,7 @@ module "consul_server_west" {
   # Run this particular Ubuntu AMI
   ami = data.aws_ami.ami_details.image_id
   # Subnet ID this instance to be associated with.
-  subnet_id = module.vpc.public_subnets[0]
+  subnet_id = module.vpc.subnet_id
   # What SGs to apply to this instance
   vpc_security_group_ids = [module.vpc.default_security_group_id]
   # ID of the key pair to be used to access this instance
@@ -102,12 +74,12 @@ module "consul_server_west" {
   auto_join_key_id     = aws_iam_access_key.auto_join_user_access_key.id
   auto_join_secret_key = aws_iam_access_key.auto_join_user_access_key.secret
   # Number of consul servers in this DC
-  instance_count = 3
+  instance_count = 1
 }
 
 # Getting auto-join working below 
 
-# Creating policy, only DescribeInstances
+# Creating policy, only DescribeInstances for auto-join user
 resource "aws_iam_policy" "auto_join_policy" {
   name        = "auto_join_policy"
   path        = "/"
@@ -142,4 +114,15 @@ resource "aws_iam_user_policy_attachment" "auto_join_policy_attach" {
 # Getting programatic access
 resource "aws_iam_access_key" "auto_join_user_access_key" {
   user = aws_iam_user.auto_join_user.name
+}
+
+terraform {
+  backend "remote" {
+    hostname     = "app.terraform.io"
+    organization = "tyloo"
+
+    workspaces {
+      name = "consul_terraform_aws_dual_dc-newly"
+    }
+  }
 }
