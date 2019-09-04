@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "./modules/vpc"
+  source = "git::https://github.com/martinhristov90/vpc_module.git"
 
   cidr_block = "192.168.0.0/24"
 }
