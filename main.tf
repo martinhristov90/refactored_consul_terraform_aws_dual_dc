@@ -41,8 +41,9 @@ module "consul_server_east" {
   # Datacenter name
   datacenter = "dc-east"
   # Auto-join
-  auto_join_key_id     = aws_iam_access_key.auto_join_user_access_key.id
-  auto_join_secret_key = aws_iam_access_key.auto_join_user_access_key.secret
+  iam_instance_profile_name  = aws_iam_instance_profile.consul_instance_profile.name
+  #auto_join_key_id     = aws_iam_access_key.auto_join_user_access_key.id
+  #auto_join_secret_key = aws_iam_access_key.auto_join_user_access_key.secret
   # Number of consul servers in this DC
   instance_count = 1
 }
@@ -70,9 +71,11 @@ module "consul_server_west" {
   public_key_ssh = module.generate_keys_west.public_key_ssh
   # Datacenter name
   datacenter = "dc-west"
+
   # Auto-join
-  auto_join_key_id     = aws_iam_access_key.auto_join_user_access_key.id
-  auto_join_secret_key = aws_iam_access_key.auto_join_user_access_key.secret
+  iam_instance_profile_name  = aws_iam_instance_profile.consul_instance_profile.name
+  #auto_join_key_id     = aws_iam_access_key.auto_join_user_access_key.id
+  #auto_join_secret_key = aws_iam_access_key.auto_join_user_access_key.secret
   # Number of consul servers in this DC
   instance_count = 1
 }
@@ -101,19 +104,36 @@ resource "aws_iam_policy" "auto_join_policy" {
 EOF
 }
 
+#Giving permissions for the EC2s to assume that role
+data "aws_iam_policy_document" "assume_role_consul_ec2" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
 # User to be used for Consul auto-join
-resource "aws_iam_user" "auto_join_user" {
-  name = "auto_join_user"
+resource "aws_iam_role" "auto_join_user" {
+  name = "auto_join_role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_consul_ec2.json
 }
 
 # Attaching the policy to the user
-resource "aws_iam_user_policy_attachment" "auto_join_policy_attach" {
-  user       = aws_iam_user.auto_join_user.name
+resource "aws_iam_role_policy_attachment" "auto_join_policy_attach" {
+  role       = aws_iam_role.auto_join_user.name
   policy_arn = aws_iam_policy.auto_join_policy.arn
 }
-# Getting programatic access
-resource "aws_iam_access_key" "auto_join_user_access_key" {
-  user = aws_iam_user.auto_join_user.name
+
+# Creating instance profile from a role
+resource "aws_iam_instance_profile" "consul_instance_profile" {
+  name = "consul-instance-profile"
+  role = aws_iam_role.auto_join_user.name
 }
 
 terraform {

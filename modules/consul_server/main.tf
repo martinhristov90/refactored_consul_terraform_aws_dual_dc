@@ -17,12 +17,12 @@ resource "aws_instance" "consul_server" {
   key_name = aws_key_pair.consul_server_keypair.key_name
   # Size of the instance
   instance_type = "t2.micro"
+  # Providing instance profile for auto join feature
+  iam_instance_profile = var.iam_instance_profile_name
 
   # Setting up consul server with template file
   user_data = templatefile("${path.module}/../../configs/consul_server/provision.tmpl", {
     datacenter           = var.datacenter
-    auto_join_key_id     = var.auto_join_key_id
-    auto_join_secret_key = var.auto_join_secret_key
     instance_number      = count.index
   })
 
