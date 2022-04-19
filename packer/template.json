@@ -25,22 +25,22 @@
     "provisioners": [
         {
             "execute_command": "echo 'ubuntu' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
-            "script": "scripts/provision.sh",
+            "script": "packer/scripts/provision.sh",
             "type": "shell"
         },
         {
           "execute_command": "echo 'ubuntu' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
-          "script": "scripts/installConsul.sh",
+          "script": "packer/scripts/installConsul.sh",
           "type": "shell"
         },
         {
           "execute_command": "echo 'ubuntu' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
-          "script": "scripts/installConsulTemplate.sh",
+          "script": "packer/scripts/installConsulTemplate.sh",
           "type": "shell"
         },
         {
           "execute_command": "echo 'ubuntu' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
-          "script": "scripts/installEnvConsul.sh",
+          "script": "packer/scripts/installEnvConsul.sh",
           "type": "shell"
         }
       ]

@@ -135,14 +135,3 @@ resource "aws_iam_instance_profile" "consul_instance_profile" {
   name = "consul-instance-profile"
   role = aws_iam_role.auto_join_user.name
 }
-
-terraform {
-  backend "remote" {
-    hostname     = "app.terraform.io"
-    organization = "tyloo"
-
-    workspaces {
-      name = "consul_terraform_aws_dual_dc-newly"
-    }
-  }
-}
