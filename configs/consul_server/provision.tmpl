@@ -14,6 +14,9 @@ cat << 'EOF' > /etc/consul.d/server_node_1_config.json
  "bootstrap_expect": 1,
  "rejoin_after_leave": true,
  "ui": true,
+ "connect": {
+  "enabled": true
+ },
  "retry_join_wan": ["provider=aws tag_key=Name tag_value=consul-server"],
  "retry_join": ["provider=aws tag_key=lan_name tag_value=consul-server-${datacenter}"]
 }

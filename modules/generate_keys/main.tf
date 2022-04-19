@@ -1,7 +1,7 @@
 # Create key pair and save the private key on disk.
 resource "tls_private_key" "keys" {
   algorithm   = "RSA"
-  ecdsa_curve = "2048"
+  rsa_bits = "2048"
 }
 
 resource "local_file" "key_save_private" {
